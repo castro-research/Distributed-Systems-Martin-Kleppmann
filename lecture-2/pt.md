@@ -2,26 +2,74 @@
 
 Olá a todos, bem-vindos de volta. Na última palestra, introduzimos sistemas distribuídos, observando alguns exemplos concretos, como a web e o RPC, que são exemplos de sistemas cliente-servidor. Nesta palestra, vamos levar as coisas para um modelo um pouco mais abstrato e mais geral, e vamos falar sobre modelos de sistema para sistemas distribuídos, que são descrições das suposições que fazemos ao projetar um algoritmo para rodar em um sistema distribuído.
 
-Um modelo de sistema é muito importante porque, como discutimos, as coisas podem dar errado em sistemas distribuídos: nós podem falhar, redes podem falhar, e assim por diante. Precisamos ser precisos sobre quais falhas estamos assumindo que são possíveis e quais falhas estamos assumindo que não são possíveis. Começaremos isso examinando dois experimentos mentais clássicos de sistemas distribuídos: o Problema dos Dois Generais e o Problema dos Generais Bizantinos.
-Vamos começar agora com o Problema dos Dois Generais. É como uma analogia militar, e o cenário desse experimento mental é que temos dois exércitos, cada um controlado por um general, e esses exércitos querem atacar e capturar uma cidade. A cidade é bem defendida, e se apenas um dos exércitos atacar de cada vez, esse exército será derrotado. Portanto, é muito importante que, se os dois generais forem atacar, eles ataquem ao mesmo tempo, porque assim, se ambos os exércitos atacarem ao mesmo tempo, eles sabem que vão vencer.
+Um modelo de sistema é muito importante porque, como discutimos, as coisas podem dar errado em sistemas distribuídos: nós podem falhar, redes podem falhar, e assim por diante. 
 
-Você pode ver nesta tabela verdade o que acontece: está tudo bem se nenhum dos exércitos atacar, mas se apenas um dos dois exércitos atacar, então tudo vai dar terrivelmente errado. O que realmente queremos é que um exército ataque se e somente se o outro exército atacar, ou seja, ambos ataquem juntos.
-O que torna isso difícil é que os dois generais não podem simplesmente conversar e concordar com o plano de quando atacar. Eles só podem se comunicar por meio de mensageiros. Esses mensageiros são pessoas que correm pela floresta, e ao correr pela floresta, eles podem ser capturados pelas forças da cidade. Assim, sempre que um general envia um mensageiro ao outro general, essa mensagem pode ou não chegar, e não há como o remetente da mensagem saber se a mensagem chegou, exceto recebendo uma resposta.
-O problema aqui é o seguinte: imagine, por exemplo, que o General Um decidiu atacar em 10 de novembro. Ele envia uma mensagem ao General Dois dizendo: "Vamos atacar em 10 de novembro, você concorda com isso?". O General Dois recebe a mensagem e responde: "Sim, estou a bordo, vamos atacar juntos em 10 de novembro". No entanto, infelizmente, a mensagem de resposta é capturada. A mensagem inicial (a solicitação) chega, mas a resposta é perdida. Assim, o General Um não recebe uma resposta.
+Precisamos ser precisos sobre quais falhas estamos assumindo que são possíveis e quais falhas estamos assumindo que não são possíveis. 
+
+Começaremos isso examinando dois experimentos mentais clássicos de sistemas distribuídos: o Problema dos Dois Generais e o Problema dos Generais Bizantinos.
+
+Vamos começar agora com o Problema dos Dois Generais. 
+
+É como uma analogia militar, e o cenário desse experimento mental é que temos dois exércitos, cada um controlado por um general, e esses exércitos querem atacar e capturar uma cidade. 
+
+A cidade é bem defendida, e se apenas um dos exércitos atacar de cada vez, esse exército será derrotado. 
+
+Portanto, é muito importante que, se os dois generais forem atacar, eles ataquem ao mesmo tempo, porque assim, se ambos os exércitos atacarem ao mesmo tempo, eles sabem que vão vencer.
+
+Você pode ver nesta tabela verdade o que acontece: 
+
+- está tudo bem se nenhum dos exércitos atacar
+- se apenas um dos dois exércitos atacar, então tudo vai dar terrivelmente errado. 
+
+O que realmente queremos é que um exército ataque se e somente se o outro exército atacar, ou seja, ambos ataquem juntos.
+
+O que torna isso difícil é que os dois generais não podem simplesmente conversar e concordar com o plano de quando atacar. 
+Eles só podem se comunicar por meio de mensageiros. 
+Esses mensageiros são pessoas que correm pela floresta, e ao correr pela floresta, eles podem ser capturados pelas forças da cidade. 
+Assim, sempre que um general envia um mensageiro ao outro general, essa mensagem pode ou não chegar, e não há como o remetente da mensagem saber se a mensagem chegou, exceto recebendo uma resposta.
+
+O problema aqui é o seguinte: imagine, por exemplo, que o General Um decidiu atacar em 10 de novembro. Ele envia uma mensagem ao General Dois dizendo: "Vamos atacar em 10 de novembro, você concorda com isso?". 
+
+O General Dois recebe a mensagem e responde: "Sim, estou a bordo, vamos atacar juntos em 10 de novembro". 
+
+No entanto, infelizmente, a mensagem de resposta é capturada. A mensagem inicial (a solicitação) chega, mas a resposta é perdida. Assim, o General Um não recebe uma resposta.
+
 Este é um cenário do que poderia acontecer. Aqui está outro cenário: também pode acontecer que o General Um envie a mensagem "ataque em 10 de novembro" para o General Dois, mas essa mensagem inicial seja perdida e nunca chegue ao General Dois. O General Dois não recebe nenhuma mensagem, então ele também não vai responder. O resultado final é que o General Um também não recebe uma resposta. Em ambos os casos, a única coisa que o General Um observa é a ausência de resposta.
-No entanto, o General Um não sabe se não há resposta porque a mensagem inicial não chegou ou se a resposta foi perdida. Há uma grande diferença entre os dois casos: do ponto de vista do General Dois, no primeiro caso, o General Dois concordou em atacar; no segundo caso, o General Dois nem sabe sobre o ataque. Eles parecem iguais do ponto de vista do General Um, mas muito diferentes do ponto de vista do General Dois.
+
+No entanto, o General Um não sabe se não há resposta porque a mensagem inicial não chegou ou se a resposta foi perdida. 
+
+Há uma grande diferença entre os dois casos: do ponto de vista do General Dois, no primeiro caso, o General Dois concordou em atacar; no segundo caso, o General Dois nem sabe sobre o ataque. Eles parecem iguais do ponto de vista do General Um, mas muito diferentes do ponto de vista do General Dois.
+
 Vamos tentar projetar um algoritmo que, apesar de tudo, leve os dois generais a um acordo. Vamos pensar primeiro do ponto de vista do General Um. O General Um basicamente tem duas escolhas: ou o General Um vai atacar sempre, independentemente de qualquer resposta ser recebida, ou o General Um vai esperar e só atacar se receber uma resposta do General Dois.
-Vamos começar com o primeiro caso: o General Um sempre ataca, mesmo que nenhuma resposta seja recebida. Neste caso, o General Um quer ter certeza de que o General Dois também vai atacar, porque caso contrário, o General Um estará em uma situação problemática. Poderíamos dizer que o General Um vai enviar muitos e muitos mensageiros ao General Dois, todos dizendo "ataque a essa hora, ataque, ataque". Se um desses mensageiros conseguir passar, as coisas provavelmente estarão bem, porque o General Dois sabe que o General Um sempre vai atacar. Assim, o General Dois sabe que é seguro para ele também ir para a batalha, mesmo sem responder ao General Um, pois afinal, o General Um prometeu que sempre atacaria. No entanto, pode acontecer que todos os mensageiros sejam perdidos. Neste caso, o General Dois não sabe sobre o ataque, e o General Um acaba indo para a batalha sozinho e perde. Isso significa que esta primeira opção de o General Um sempre atacar não é realmente ótima.
+
+Vamos começar com o primeiro caso: o General Um sempre ataca, mesmo que nenhuma resposta seja recebida. Neste caso, o General Um quer ter certeza de que o General Dois também vai atacar, porque caso contrário, o General Um estará em uma situação problemática. 
+
+Poderíamos dizer que o General Um vai enviar muitos e muitos mensageiros ao General Dois, todos dizendo "ataque a essa hora, ataque, ataque". Se um desses mensageiros conseguir passar, as coisas provavelmente estarão bem, porque o General Dois sabe que o General Um sempre vai atacar. Assim, o General Dois sabe que é seguro para ele também ir para a batalha, mesmo sem responder ao General Um, pois afinal, o General Um prometeu que sempre atacaria. No entanto, pode acontecer que todos os mensageiros sejam perdidos. Neste caso, o General Dois não sabe sobre o ataque, e o General Um acaba indo para a batalha sozinho e perde. Isso significa que esta primeira opção de o General Um sempre atacar não é realmente ótima.
 
 Vamos considerar a alternativa: o General Um não promete atacar sempre, mas só atacará se receber uma resposta positiva do General Dois. 
 
 Neste caso, o General Um está seguro, pois sabe que só entrará em batalha se o General Dois também entrar em batalha. Mas agora, se você pensar do ponto de vista do General Dois, o General Dois sabe que o General Um só atacará se a resposta do General Dois para o General Um conseguir passar, porque afinal, o General Um está esperando por essa resposta. Então, o General Dois está exatamente na mesma situação em que o General Um estava na primeira opção. Ou o General Dois deve se comprometer a atacar sempre, caso em que ele corre o risco de estar sozinho na batalha, ou o General Dois esperará uma resposta do General Um. Mas agora o General Um tem que responder, e assim você acaba com cadeias potencialmente infinitas de "sim, sim, vou atacar", "ok, vou atacar se você atacar", "sim, ok, eu vou atacar, mas só se você também atacar", e assim por diante.
 
-Eles têm que enviar mensagens de volta e para frente, e você acaba com uma cadeia infinita antes que haja alguma certeza de que eles realmente atacarão juntos. Isso é chamado em sistemas distribuídos de problema de não haver conhecimento comum. Não há conhecimento no sistema de que um nó sabe e o outro nó sabe que o primeiro nó sabe, e que o primeiro nó sabe que o segundo nó sabe que o primeiro nó sabe, e assim por diante. Você pode construir essas cadeias arbitrárias, e o resultado final é que, não importa quantas sequências finitas de mensagens enviemos de volta e para frente, nunca teremos certeza absoluta de que o General Um atacará se e somente se o General Dois atacar. Você pode construir uma certeza probabilística gradualmente crescente, talvez dependendo das suas suposições sobre se os mensageiros são capturados ou não, mas é realmente impossível alcançar uma certeza completa aqui.
-Vamos pegar este experimento mental abstrato e aplicá-lo a um exemplo concreto. Na última palestra, tivemos o exemplo de uma loja online fazendo uma requisição RPC a um serviço de pagamento para cobrar um cartão de crédito. O que realmente queremos aqui é que a loja online despache as mercadorias se e somente se o cliente pagar pelas mercadorias. Você pode imaginar que, se a loja online despachar as mercadorias, mas o serviço de pagamento não cobrar o cartão de crédito, a loja ficará infeliz, pois acabou de dar algumas mercadorias de graça. Se a loja online não despachar as mercadorias, mas o serviço de pagamento cobrar o cartão de crédito, o cliente ficará infeliz, pois foi cobrado sem receber nenhuma mercadoria.
+Eles têm que enviar mensagens de volta e para frente, e você acaba com uma cadeia infinita antes que haja alguma certeza de que eles realmente atacarão juntos. 
+
+Isso é chamado em sistemas distribuídos de problema de não haver conhecimento comum. Não há conhecimento no sistema de que um nó sabe e o outro nó sabe que o primeiro nó sabe, e que o primeiro nó sabe que o segundo nó sabe que o primeiro nó sabe, e assim por diante. 
+
+Você pode construir essas cadeias arbitrárias, e o resultado final é que, não importa quantas sequências finitas de mensagens enviemos de volta e para frente, nunca teremos certeza absoluta de que o General Um atacará se e somente se o General Dois atacar. Você pode construir uma certeza probabilística gradualmente crescente, talvez dependendo das suas suposições sobre se os mensageiros são capturados ou não, mas é realmente impossível alcançar uma certeza completa aqui.
+
+Vamos pegar este experimento mental abstrato e aplicá-lo a um exemplo concreto. 
+
+Na última palestra, tivemos o exemplo de uma loja online fazendo uma requisição RPC a um serviço de pagamento para cobrar um cartão de crédito. 
+O que realmente queremos aqui é que a loja online despache as mercadorias se e somente se o cliente pagar pelas mercadorias. 
+
+Você pode imaginar que, se a loja online despachar as mercadorias, mas o serviço de pagamento não cobrar o cartão de crédito, a loja ficará infeliz, pois acabou de dar algumas mercadorias de graça. Se a loja online não despachar as mercadorias, mas o serviço de pagamento cobrar o cartão de crédito, o cliente ficará infeliz, pois foi cobrado sem receber nenhuma mercadoria.
+
 Então, o que realmente queremos é algo extremamente semelhante ao Problema dos Dois Generais aqui: que a loja online despache as mercadorias se e somente se o serviço de pagamento cobrar o cartão. E, como você pode imaginar, a comunicação RPC entre a loja online e o serviço de pagamento se parece muito com os mensageiros correndo pela floresta no Problema dos Dois Generais, o que significa que as mensagens podem ser perdidas — seja uma ou outra. E, portanto, não é possível para a loja online e o serviço de pagamento alcançar a certeza de que uma ação acontecerá se e somente se a outra ação acontecer.
+
 Na prática, as lojas online funcionam, mas a razão pela qual elas funcionam é porque existem uma série de salvaguardas de segundo nível que garantem um resultado razoável. Por exemplo, se for descoberto que o cartão foi cobrado, mas a loja online não tem mais os produtos em estoque, a loja online simplesmente enviará um e-mail de desculpas dizendo: "Oh, desculpe, estamos sem estoque, reembolsamos seu cartão", e assim está tudo bem. É possível sair dessa situação porque a cobrança é, na verdade, uma ação revogável. É possível reembolsar a cobrança e, portanto, é possível voltar a um estado seguro onde nem o despacho das mercadorias nem o pagamento efetivamente aconteceram.
-Outra opção é que o serviço de pagamento pode ou não ter cobrado um cartão, e então a loja online, quando a rede é reparada e as mensagens podem passar novamente, a loja online verifica com o serviço de pagamento dizendo: "Você realmente cobrou esse cartão ou não, porque eu nunca tive notícias suas se você cobrou ou não?". E o que provavelmente acontecerá é que o serviço de pagamento sempre irá em frente e cobrará o cartão, mesmo que não seja certo que a loja online irá despachar as mercadorias. Isso ocorre porque, neste caso, está tudo bem, pois o pagamento pode ser reembolsado, se necessário. Essa é a maneira pela qual este problema de compras online não é exatamente o mesmo que o Problema dos Dois Generais, mas, no entanto, o Problema dos Dois Generais ilustra essa questão da incerteza que temos em um sistema distribuído quando não temos certeza se as mensagens foram entregues ou não.
+
+Outra opção é que o serviço de pagamento pode ou não ter cobrado um cartão, e então a loja online, quando a rede é reparada e as mensagens podem passar novamente, a loja online verifica com o serviço de pagamento dizendo: 
+"Você realmente cobrou esse cartão ou não, porque eu nunca tive notícias suas se você cobrou ou não?". 
+E o que provavelmente acontecerá é que o serviço de pagamento sempre irá em frente e cobrará o cartão, mesmo que não seja certo que a loja online irá despachar as mercadorias. Isso ocorre porque, neste caso, está tudo bem, pois o pagamento pode ser reembolsado, se necessário. Essa é a maneira pela qual este problema de compras online não é exatamente o mesmo que o Problema dos Dois Generais, mas, no entanto, o Problema dos Dois Generais ilustra essa questão da incerteza que temos em um sistema distribuído quando não temos certeza se as mensagens foram entregues ou não.
 
 # Problema dos Generais Bizantinos
 
