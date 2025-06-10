@@ -24,8 +24,11 @@ Você pode ver nesta tabela verdade o que acontece:
 O que realmente queremos é que um exército ataque se e somente se o outro exército atacar, ou seja, ambos ataquem juntos.
 
 O que torna isso difícil é que os dois generais não podem simplesmente conversar e concordar com o plano de quando atacar. 
+
 Eles só podem se comunicar por meio de mensageiros. 
+
 Esses mensageiros são pessoas que correm pela floresta, e ao correr pela floresta, eles podem ser capturados pelas forças da cidade. 
+
 Assim, sempre que um general envia um mensageiro ao outro general, essa mensagem pode ou não chegar, e não há como o remetente da mensagem saber se a mensagem chegou, exceto recebendo uma resposta.
 
 O problema aqui é o seguinte: imagine, por exemplo, que o General Um decidiu atacar em 10 de novembro. Ele envia uma mensagem ao General Dois dizendo: "Vamos atacar em 10 de novembro, você concorda com isso?". 
@@ -120,17 +123,19 @@ No entanto, assumimos um número máximo (f) de generais maliciosos de um total 
 Os generais maliciosos podem saber quem são os outros generais maliciosos e podem até trabalhar juntos de forma coordenada para tentar enganar os generais honestos.
 
 Nosso requisito é que os generais honestos concordem com um plano (por exemplo, todos atacarem no mesmo dia), embora não possamos fazer nenhuma afirmação sobre o que os generais maliciosos farão, pois eles podem se comportar de maneiras arbitrárias.
+
 Resultado Típico sobre o Problema dos Generais Bizantinos:
 
 Se tivermos um máximo de f generais maliciosos, precisamos de pelo menos 3f + 1 generais no total para tolerar esses f generais maliciosos.
 
 Isso significa que menos de um terço do número total de generais pode ser malicioso.
-◦
+
 Se tivermos três generais e um for malicioso (f=1), o problema é insolúvel.
-◦
+
 Para tolerar um sistema com um general malicioso, precisamos de pelo menos quatro generais no total (três honestos e um malicioso).
-◦
+
 Se quisermos um sistema em que dois generais possam ser maliciosos (f=2), precisamos de sete generais (cinco honestos e dois maliciosos).
+
 A Criptografia ajuda?:
 
 O problema se torna um pouco mais fácil se assumirmos que podemos usar criptografia, como assinaturas digitais.
@@ -140,6 +145,7 @@ Uma assinatura digital é uma forma de mensagem em que pode ser provado que uma 
 Por exemplo, isso permitiria ao General Dois provar ao General Três qual comando o General Um enviou ao General Dois, convencendo o General Três de que o General Dois é realmente honesto.
 
 A criptografia ajuda, mas não torna o Problema dos Generais Bizantinos magicamente simples; ele permanece difícil mesmo com criptografia.
+
 Relevância Prática do Problema dos Generais Bizantinos:
 
 O problema pode ser adaptado para um exemplo concreto de uma loja online, um serviço de pagamento e um cliente.
@@ -147,16 +153,17 @@ O problema pode ser adaptado para um exemplo concreto de uma loja online, um ser
 Nesse cenário de relacionamento triangular, queremos que todas as três partes concordem sobre o status de uma transação ou pedido. A loja online deve enviar as mercadorias apenas se concordar com o serviço de pagamento que o pagamento realmente ocorreu e se o cliente concordou que realmente pediu o item e com o valor cobrado no cartão.
 
 Na vida real, as relações de confiança entre essas três partes podem ser bastante complicadas:
-◦
+
 Do ponto de vista da loja online, o cliente precisa ser tratado como potencialmente malicioso, pois se fosse cegamente confiável, poderiam ocorrer fraudes.
-◦
+
 O serviço de pagamento pode não confiar totalmente na loja online, pois uma loja fraudulenta poderia ser configurada para processar transações com números de cartão de crédito roubados sem enviar mercadorias.
-◦
+
 As relações de confiança podem ser assimétricas (por exemplo, a loja confia no serviço de pagamento, mas o serviço de pagamento não confia totalmente na loja).
 
 Essas situações em que uma parte não confia na outra, mas ainda assim querem realizar algo, mostram que o comportamento bizantino é real e prático.
 
 Embora o Problema dos Generais Bizantinos seja uma simplificação (por exemplo, tratando todos os generais como simétricos), ele é um ponto de partida útil para estudar situações em que os participantes não confiam totalmente uns nos outros.
+
 Origem do Termo "Bizantino":
 
 O nome "Bizantino" vem do Império Bizantino, também conhecido como Bizâncio, o antigo Império Romano do Oriente. Sua capital era Constantinopla, que era conhecida como Bizâncio (hoje Istambul, na Turquia).
@@ -172,41 +179,46 @@ Vimos agora o Problema dos Dois Generais e o Problema dos Generais Bizantinos.
 No Problema dos Dois Generais, assumimos que os nós são honestos, mas as mensagens podem ser perdidas.
 
 No Problema dos Generais Bizantinos, assumimos que as mensagens são confiáveis, mas os nós podem ser desonestos.
+
 Agora, devemos juntar os dois e tentar projetar modelos de sistema para sistemas nos quais tanto os nós quanto as redes podem falhar de várias maneiras. Esta é a base de qualquer algoritmo em sistemas distribuídos. Precisamos assumir certas coisas sobre as propriedades que o sistema terá.
+
 Tipicamente, fazemos isso olhando para três áreas diferentes de interesse em um modelo de sistema:
-1.
-Precisamos descrever como assumimos que a rede se comportará.
-2.
-Vamos assumir como os nós se comportarão.
-3.
-Precisamos assumir como o tempo e o sistema funcionarão, o que afeta tanto as redes quanto os nós.
+
+1. Precisamos descrever como assumimos que a rede se comportará.
+
+2. Vamos assumir como os nós se comportarão.
+
+3. Precisamos assumir como o tempo e o sistema funcionarão, o que afeta tanto as redes quanto os nós.
+
 Vamos começar com as redes:
 
 Redes são não confiáveis por muitas razões.
-◦
+
 Sobrecarga temporária: um buffer pode ficar cheio e uma mensagem ser descartada.
-◦
+
 Problemas fundamentais: alguém pode desconectar o cabo de rede errado, interrompendo a rede.
-◦
+
 Interações curiosas com a natureza: Google observou tubarões mordendo cabos de fibra óptica submarinos. Pessoas observaram vacas pisando em cabos de fibra óptica e criando "torções" que impedem a passagem da luz.
+
 Em sistemas distribuídos, ao projetar algoritmos, tipicamente assumimos alguma forma de comunicação ponto a ponto:
 
 Mensagens têm um remetente e um destinatário.
 
 São enviadas por um link bidirecional, permitindo que o destinatário responda ao remetente.
 Podemos escolher quão confiável assumimos que este link é:
-1.
-Link confiável: Assumimos que as mensagens sempre são entregues. Se uma mensagem é enviada, ela é recebida, e se é recebida, foi enviada previamente. O link não perde nem fabrica mensagens, mas as mensagens podem ser reordenadas. Esta é uma suposição muito forte.
-2.
-Link com perda justa (Fair Loss Link): Sempre que uma mensagem é enviada, ela tem uma probabilidade não zero de ser entregue. Ela pode ou não ser entregue, mas se o envio for repetido, eventualmente será entregue. Não há suposições sobre o tempo que levará.
-3.
-Arbitrário: O link de rede pode fazer qualquer coisa. Pode ser modelado como um adversário ativo e malicioso que modifica o tráfego da rede.
-◦
+
+1. Link confiável: Assumimos que as mensagens sempre são entregues. Se uma mensagem é enviada, ela é recebida, e se é recebida, foi enviada previamente. O link não perde nem fabrica mensagens, mas as mensagens podem ser reordenadas. Esta é uma suposição muito forte.
+
+2. Link com perda justa (Fair Loss Link): Sempre que uma mensagem é enviada, ela tem uma probabilidade não zero de ser entregue. Ela pode ou não ser entregue, mas se o envio for repetido, eventualmente será entregue. Não há suposições sobre o tempo que levará.
+
+3. Arbitrário: O link de rede pode fazer qualquer coisa. Pode ser modelado como um adversário ativo e malicioso que modifica o tráfego da rede.
+
 Isso acontece na internet real, por exemplo, em um Wi-Fi de cafeteria, onde o proprietário pode interferir nos pacotes.
-◦
+
 Eles podem olhar sua comunicação, modificar pacotes, gravar e reproduzir pacotes, fingir ser um site e, claro, descartar mensagens.
-◦
+
 Um link arbitrário pode fazer qualquer uma dessas coisas, e esta é uma modelagem razoável de como a internet funciona hoje.
+
 Um conceito final de terminologia é a partição de rede:
 
 Uma partição de rede ocorre quando os nós continuam funcionando, mas o link de comunicação entre eles é interrompido.
@@ -214,26 +226,28 @@ Uma partição de rede ocorre quando os nós continuam funcionando, mas o link d
 Geralmente, essa interrupção é por um período finito de tempo, o que significa que a partição eventualmente é reparada e a comunicação pode ser restabelecida. No entanto, o período de interrupção pode ser substancial.
 
 É possível que um subgrupo de nós se comunique e outro subgrupo se comunique, mas os dois grupos não possam se comunicar entre si.
+
 É quase possível converter um modelo de link em outro:
 
 Um link com perda justa pode ser transformado em um link confiável. Isso é feito simplesmente repetindo as mensagens até que sejam entregues e desduplicando as mensagens no lado do destinatário. Isso pode levar muito tempo, mas eventualmente a mensagem passará.
 
 É quase possível converter um link arbitrário em um link com perda justa usando um protocolo criptográfico como TLS (Transport Layer Security).
-◦
+
 O TLS é o que fornece o cadeado verde no navegador e o 's' em HTTPS.
-◦
+
 Ele garante que, se a comunicação for bem-sucedida, ela não foi adulterada, é autêntica e privada (criptografada).
-◦
+
 A única coisa que não se pode fazer é se o adversário decidir bloquear toda a comunicação para sempre.
-◦
+
 Mas, se o adversário interferir apenas em um número finito de pacotes, um link arbitrário pode ser "atualizado" para um link com perda justa. A partir daí, com tentativas e desduplicação, ele pode ser transformado em um link confiável.
+
 A próxima parte do modelo de sistema é como os nós se comportam:
-1.
-Falha por pane (Crash Fault): Assumimos que um processo pode falhar a qualquer momento e, uma vez que falha, nunca mais voltará. É uma suposição simplificadora, mas pode ser precisa em casos de falha catastrófica de hardware (ex: telefone que cai na privada). Qualquer estado em memória é perdido, mas dados salvos em armazenamento não volátil sobrevivem.
-2.
-Falha por pane com recuperação (Crash Recovery): Nó pode falhar e depois voltar após algum tempo. O estado em memória é perdido, mas dados em armazenamento estável permanecem. Ainda é possível que um nó falhe e nunca mais volte.
-3.
-Bizantino: Assim como no Problema dos Generais Bizantinos, um nó com falha bizantina desvia do algoritmo. Ele pode fingir seguir o algoritmo ou agir de forma maliciosa. Não há restrição para o comportamento de um nó com falha bizantina; ele pode fazer o que quiser.
+
+1. Falha por pane (Crash Fault): Assumimos que um processo pode falhar a qualquer momento e, uma vez que falha, nunca mais voltará. É uma suposição simplificadora, mas pode ser precisa em casos de falha catastrófica de hardware (ex: telefone que cai na privada). Qualquer estado em memória é perdido, mas dados salvos em armazenamento não volátil sobrevivem.
+
+2. Falha por pane com recuperação (Crash Recovery): Nó pode falhar e depois voltar após algum tempo. O estado em memória é perdido, mas dados em armazenamento estável permanecem. Ainda é possível que um nó falhe e nunca mais volte.
+
+3. Bizantino: Assim como no Problema dos Generais Bizantinos, um nó com falha bizantina desvia do algoritmo. Ele pode fingir seguir o algoritmo ou agir de forma maliciosa. Não há restrição para o comportamento de um nó com falha bizantina; ele pode fazer o que quiser.
 Terminologia: Um nó pode ser categorizado como defeituoso (faulty) ou correto (correct).
 
 Um nó é defeituoso se falhar (no modelo de pane) ou se desviar do algoritmo (no modelo bizantino).
@@ -241,47 +255,48 @@ Um nó é defeituoso se falhar (no modelo de pane) ou se desviar do algoritmo (n
 Um nó é correto se não for defeituoso.
 
 Um nó não sabe necessariamente se outro nó é correto ou defeituoso.
+
 A terceira parte de um modelo de sistema são os modelos de tempo (timing):
-1.
-Síncrono: Assumimos que tudo leva um tempo conhecido.
-◦
+
+1. Síncrono: Assumimos que tudo leva um tempo conhecido.
+
 Uma mensagem enviada pela rede tem um tempo máximo após o qual será entregue ou perdida.
-◦
+
 Nós sempre executam seu código a uma velocidade conhecida, com um limite superior para o tempo de execução de cada passo. Esta é uma suposição muito forte.
-2.
-Assíncrono: Nenhuma suposição de tempo é feita.
-◦
+
+2. Assíncrono: Nenhuma suposição de tempo é feita.
+
 Uma mensagem enviada pode levar 20 anos para chegar; não há limites superiores para a latência da mensagem.
-◦
+
 Não há suposições sobre a velocidade de execução dos nós; um nó pode pausar sua execução a qualquer momento e retomar depois. Isso pode acontecer devido a suspensão de threads.
-3.
-Parcialmente Síncrono: Um compromisso entre os modelos síncrono e assíncrono.
-◦
+
+3. Parcialmente Síncrono: Um compromisso entre os modelos síncrono e assíncrono.
+
 Por certos períodos de tempo, o sistema se comporta como um modelo síncrono, e por outros, como um assíncrono.
-◦
+
 Certas coisas não podem ser resolvidas em um modelo assíncrono, portanto, às vezes, suposições de tempo são necessárias.
-◦
+
 No entanto, assumir um modelo síncrono é perigoso, pois redes reais se comportam de forma parcialmente síncrona. Se o sistema demorar mais do que o limite superior para entregar uma mensagem, o algoritmo pode falhar catastroficamente.
-◦
+
 No modelo parcialmente síncrono, assume-se que na maior parte do tempo o sistema é bem-comportado (síncrono), mas ocasionalmente fica "estranho", com mensagens demorando muito ou nós lentos, para depois retornar ao estado síncrono.
 Problemas de assumir sincronia:
 
 Mesmo em redes rápidas, mensagens podem demorar mais ocasionalmente.
-◦
+
 Uma mensagem pode ser perdida e precisar ser reenviada. Em caso de partição de rede, pode-se ter que esperar minutos, horas ou até dias.
-◦
+
 Congestionamento e filas na rede.
-◦
+
 Reconfiguração de rede pode fazer pacotes ficarem presos por mais de um minuto.
-◦
+
 Mesmo em datacenters bem gerenciados, é possível ter latências de mensagens extremamente altas.
 
 A velocidade de execução dos nós também pode ser interrompida.
-◦
+
 Trocas de contexto e suspensão temporária de threads (por exemplo, devido a inversão de prioridade).
-◦
+
 Coleta de lixo "stop the world" em linguagens como Java, onde todos os threads são pausados enquanto a coleta de lixo ocorre. Essas pausas podem durar minutos se o heap for grande.
-◦
+
 Outras causas de atrasos variáveis no sistema operacional, como falhas de página.
 
 Sistemas operacionais de tempo real podem fornecer garantias de agendamento, mas a maioria dos sistemas distribuídos é construída em sistemas operacionais de propósito geral que não dão tais garantias. Mesmo com RTOS, é difícil garantir as premissas de tempo.
@@ -301,7 +316,7 @@ Este segmento aborda o contexto prático de como lidar com falhas e criar servi�
 Disponibilidade e Tolerância a Falhas
 
 Disponibilidade: É a fração de tempo durante a qual um serviço está funcionando corretamente.
-◦
+
 É medida em "noves" (nines), por exemplo:
 ▪
 99% de disponibilidade significa 3 a 4 dias de indisponibilidade por ano.
@@ -315,13 +330,13 @@ SLO (Service Level Objective): É o objetivo de disponibilidade que um serviço 
 SLA (Service Level Agreement): É um contrato entre um serviço e seus clientes que especifica o nível de serviço esperado.
 
 Tolerância a falhas (Fault Tolerance): É a maneira típica de alcançar alta disponibilidade em sistemas distribuídos.
-◦
+
 Uma falha (fault) ocorre quando alguma parte do sistema não está funcionando, como uma falha de nó (crash) ou uma partição de rede.
-◦
+
 O objetivo é que o sistema seja capaz de tolerar um certo número de falhas. Não é razoável esperar que um sistema tolere todas as falhas (ex: todos os nós falharem ao mesmo tempo).
-◦
+
 Por exemplo, um sistema pode continuar funcionando se menos da metade de seus nós falharem (permitindo que 1 de 3 ou 2 de 5 falhem).
-◦
+
 Ponto único de falha (Single Point of Failure): É um componente único que, se falhar, torna todo o sistema indisponível. Um sistema bem projetado evita pontos únicos de falha, o que significa que remover qualquer componente não deve derrubar o sistema inteiro.
 Detecção de Falhas
 
@@ -330,26 +345,26 @@ Para tolerar falhas, geralmente é preciso primeiro detectar uma falha e depois 
 Detector de falhas (Failure Detector): É um mecanismo (pode ser um algoritmo de software ou hardware) para detectar se outro nó está com falha.
 
 Implementação com Timeouts: A forma mais comum de implementar detectores de falhas é usando timeouts.
-◦
+
 Envia-se uma mensagem a um nó e espera-se uma resposta dentro de um determinado tempo.
-◦
+
 Se nenhuma resposta for recebida dentro do tempo limite, o nó é considerado "morto" ou falho.
 
 Limitações dos Timeouts: Em sistemas parcialmente síncronos ou assíncronos, um timeout não indica necessariamente que um nó falhou.
-◦
+
 Pode ser que a mensagem inicial ou a resposta tenha sido perdida ou atrasada na rede.
-◦
+
 O nó pode estar vivo, mas temporariamente pausado (ex: devido a uma pausa de coleta de lixo "stop the world" em Java que pode durar minutos, ou outras interrupções do sistema operacional).
-◦
+
 É impossível diferenciar se a ausência de resposta é por um problema de rede, um atraso aleatório, ou um crash real do nó.
 
 Detector de Falhas Perfeito: Um detector de falhas perfeito só pode ser construído em um modelo de sistema síncrono e assumindo apenas falhas por pane (crash stop), sem comportamento bizantino.
 
 Detector de Falhas Eventualmente Perfeito: Em um sistema parcialmente síncrono, o melhor que se pode ter é um detector de falhas eventualmente perfeito.
-◦
+
 Este detector pode estar errado temporariamente, gerando falsos positivos (detecta um timeout mesmo que o nó não tenha falhado) ou falsos negativos (demora para detectar um crash).
-◦
+
 No entanto, eventualmente, o detector de falhas rotula um nó como falho se e somente se ele realmente falhou. Ou seja, qualquer suspeita temporária de falha cessará se o nó estiver correto, e se um nó falhar, ele acabará sendo detectado como tal.
-◦
+
 Apesar de não ser perfeito, um detector de falhas eventualmente perfeito é suficiente para construir algoritmos úteis.
 Em resumo, a tolerância a falhas é fundamental para a alta disponibilidade, e a detecção de falhas, embora desafiadora em ambientes assíncronos e parcialmente síncronos, pode ser alcançada com detectores eventualmente perfeitos.
