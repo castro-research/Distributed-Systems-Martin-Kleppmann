@@ -1,6 +1,16 @@
 # Aulas da Cambridge University em inglês e português
 
 Lecture 1 - Introdução, Redes de computadores e RPC
+Lecture 2 - Modelos de Sistemas distribuídos
+Lecture 3 - Relógios, Tempo e Ordenação de Eventos
+Lecture 4 - Broadcast Protocols e Relógio lógico
+Lecture 5 - Replicação
+Lecture 6 - Consenso
+Lecture 7 - Consistencia de Replicação
+Lecture 8 - Casos de estudo
+
+OBS: As aulas são todas em inglês, e todo o conteúdo do slide está no dist-sys-notes.pdf
+Eu acabei passando para português usando Google Document Translate e acabei corrigindo alguns erros de tradução, mas não está perfeito. No entanto, no Lecture 3 eu já estava acompanhando mais o inglês, por que ficou mais comodo para mim. Então não vou focar em ter uma tradução perfeita, mas sim em entender o conteúdo.
 
 # Playlist
 
